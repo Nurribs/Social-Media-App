@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/socialmediaapp
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update     # geliştirme için
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+app:
+  token.expiration-minutes: 60
