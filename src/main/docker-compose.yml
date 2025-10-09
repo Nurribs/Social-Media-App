@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16
+    container_name: social-postgres
+    environment:
+      POSTGRES_DB: socialdb
+      POSTGRES_USER: social
+      POSTGRES_PASSWORD: socialpwd
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: socialapp-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
