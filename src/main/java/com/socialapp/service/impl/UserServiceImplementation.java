@@ -35,4 +35,5 @@ public class UserServiceImplementation implements UserService {
         tokens.deleteByUser(me);
         users.deleteById(me.getId());
     }
+
 }

@@ -3,6 +3,7 @@ package com.socialapp.model.entity;
 import java.time.Instant;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.Duration;
 
 @Entity
 @Table(name = "tokens", indexes = {
@@ -20,18 +21,27 @@ public class Token {
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false, unique = true, length = 200)
     private String token;
 
-    @Column(nullable = false)
+    @Column(name = "created_at",nullable = false)
     private Instant createdAt = Instant.now();
 
-    @Column(nullable = false)
+    @Column(name = "expires_at",nullable = false)
     private Instant expiresAt;
 
+    @Column(name = "revoked_at")
     private Instant revokedAt;
+
+    @PrePersist
+    public void prePersist() {
+        // eğer service set etmediyse garanti altına al
+        if (createdAt == null) createdAt = Instant.now();
+        if (expiresAt == null) expiresAt = Instant.now().plus(Duration.ofHours(12)); // süreyi istersen properties’ten oku
+    }
 
     public boolean isActive(Instant now) {
         return revokedAt == null && now.isBefore(expiresAt);
