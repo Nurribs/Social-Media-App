@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Service
+@Transactional
 public class AuthServiceImplementation implements AuthService{
     private final UserRepository users;
     private final TokenRepository tokens;
@@ -67,6 +68,7 @@ public class AuthServiceImplementation implements AuthService{
     }
 
     @Override
+    @Transactional
     public User me(String token) {
         Token t = tokens.findByToken(token).orElseThrow(() -> new IllegalArgumentException("Token bulunmamadı."));
         if (!t.isActive(Instant.now())) {

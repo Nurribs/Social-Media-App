@@ -29,13 +29,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("X-Access-Token") String token) {
+    public ResponseEntity<Void> logout(@RequestHeader("Access-Token") String token) {
         auth.logout(token);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> me(@RequestHeader("X-Access-Token") String token) {
+    public ResponseEntity<User> me(@RequestHeader("Access-Token") String token) {
         return ResponseEntity.ok(auth.me(token));
     }
 }

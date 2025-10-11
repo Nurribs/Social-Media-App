@@ -8,6 +8,7 @@ import com.socialapp.security.RoleHelper;
 import com.socialapp.service.AuthService;
 import com.socialapp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,24 +34,21 @@ public class UserController {
         this.roles = roles;
     }
 
-    /** Helper: request’ten auth edilmiş kullanıcıyı çek */
     private User auth(HttpServletRequest req) {
         Object u = req.getAttribute("authUser");   // TokenAuth burada bırakıyor
         if (u == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "missing_token");
         return (User) u;
     }
 
-
-    /** Tekil kullanıcı profili */
     @GetMapping("/users/{id}")
     public UserResponse getUser(@PathVariable Long id, HttpServletRequest req) {
-        // sadece token doğrulanmış olması yetiyor ekstra yetki gerekmeyecek
         auth(req);
         User u = users.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user_not_found"));
         return UserResponse.from(u);
     }
 
+    @Transactional
     @PutMapping("/users/me/password")
     public ResponseEntity<?> changeMyPassword(@Valid @RequestBody ChangePasswordReq body,
                                               HttpServletRequest req) {
@@ -59,15 +57,18 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
     @DeleteMapping("/users/me")
-    public ResponseEntity<?> deleteMe(HttpServletRequest req) {
+    public ResponseEntity<Void> deleteMe(
+            HttpServletRequest req,
+            @RequestBody(required = false) String _ignoreBody // Gövde gelse bile yok say yoksa 500 ınternal hatası veriyor postman
+    ) {
         User me = auth(req);
         userService.deleteSelf(me);
         return ResponseEntity.noContent().build();
     }
 
-
-    /** ADMIN, herhangi bir kullanıcıyı silebilir */
+    @Transactional
     @DeleteMapping("/admin/users/{id}")
     public ResponseEntity<?> deleteByAdmin(@PathVariable Long id, HttpServletRequest req) {
         User me = auth(req);

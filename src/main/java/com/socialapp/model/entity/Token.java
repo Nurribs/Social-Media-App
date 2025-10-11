@@ -20,7 +20,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER) // laazy den eager a çevirdim çünkü proxy hatası alıyordum.
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

@@ -9,6 +9,7 @@ import com.socialapp.service.UserService;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UserServiceImplementation implements UserService {
     private final UserRepository users;
     private final TokenRepository tokens;
@@ -19,6 +20,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional
     public Optional<User> getById(Long id){
         return users.findById(id);
     }
@@ -26,13 +28,14 @@ public class UserServiceImplementation implements UserService {
     @Override
     @Transactional
     public void deleteByAdmin(Long id){
+        tokens.deleteAllByUserId(id);
         users.deleteById(id);
     }
 
     @Override
     @Transactional
     public void deleteSelf(User me){
-        tokens.deleteByUser(me);
+        tokens.deleteAllByUserId(me.getId());
         users.deleteById(me.getId());
     }
 

@@ -10,6 +10,8 @@ import java.time.Instant;
 public interface TokenRepository extends JpaRepository<Token, Long>{
     Optional<Token> findByToken(String token);
     long deleteByUser(User user);
+
+    void deleteAllByUserId(Long userId);
     long deleteByExpiresAtBefore(Instant time);
 }
 
