@@ -29,21 +29,27 @@ public class Post {
     @Column(nullable = false, length = 1000)
     private String caption;  //comment yerine
 
+    @Builder.Default
     @Column(nullable = false)
     private long views = 0;
 
+    @Builder.Default
     @Column(nullable = false)
     private long likes = 0;
 
+    @Builder.Default
     @CreationTimestamp
     private Instant createdAt;
 
+    @Builder.Default
     @UpdateTimestamp
     private Instant updatedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 
