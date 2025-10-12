@@ -45,9 +45,9 @@ Spring Security kullanılmadan, Bcrypt ve hasher kullanılarak güvenlik sağlan
 > Projenin ana(kök) dizininden aşağıdaki komutları takip ederek kurulum ve çalıştırmayı yapabilirsiniz.
 
 Terminalden --> docker compose up -d --build
-# Uygulama: http://localhost:8080
-# DB: localhost:5432 (socialdb / social / socialpwd)
-# pgAdmin: http://localhost:5050 (admin@example.com / admin123)
+Uygulama: http://localhost:8080
+DB: localhost:5432 (socialdb / social / socialpwd)
+pgAdmin: http://localhost:5050 (admin@example.com / admin123)
 
 #program durdurulmak istenirse 
 Terminalden --> docker compose down
