@@ -34,7 +34,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse get(Long id) {
         Post p = posts.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
         return toResponse(p, p.getComments().stream().map(c ->
                 new CommentResponse(c.getId(), c.getAuthor().getId(), c.getAuthor().getUsername(), c.getText(), c.getCreatedAt())
         ).toList());
@@ -50,9 +50,9 @@ public class PostService {
     @Transactional
     public PostResponse update(User actor, Long id, PostUpdateReq req) {
         Post p = posts.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
         if (!p.getAuthor().getId().equals(actor.getId()) && !roles.isAdmin(actor)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "forbidden");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Yetkisiz kullanıcı.");
         }
         if (req.imageUrl() != null) p.setImageUrl(req.imageUrl());
         if (req.caption() != null)  p.setCaption(req.caption());
@@ -62,9 +62,9 @@ public class PostService {
     @Transactional
     public void delete(User actor, Long id) {
         Post p = posts.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
         if (!p.getAuthor().getId().equals(actor.getId()) && !roles.isAdmin(actor)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "forbidden");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Yetkisiz kullanıcı.");
         }
         posts.delete(p);
     }
@@ -72,7 +72,7 @@ public class PostService {
     @Transactional
     public void addView(Long id) {
         Post p = posts.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
         p.setViews(p.getViews() + 1);
     }
 
@@ -87,7 +87,7 @@ public class PostService {
                 p.getImageUrl(),
                 p.getCaption(),
                 p.getViews(),
-                p.getLikes(),
+                p.getLikesCount(),
                 p.getCreatedAt(),
                 p.getUpdatedAt(),
                 cmts

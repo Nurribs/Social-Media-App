@@ -3,6 +3,7 @@ package com.socialapp.controller;
 import com.socialapp.model.entity.User;
 import com.socialapp.service.LikeService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +15,14 @@ public class LikeController {
         this.likes = likes;
     }
 
-    private User auth(HttpServletRequest req) { return (User) req.getAttribute("authUser"); }
+    private User auth(HttpServletRequest req) {
+        return (User) req.getAttribute("authUser");
+    }
 
     @PostMapping
     public ResponseEntity<Void> like(@PathVariable Long postId, HttpServletRequest r) {
         likes.like(auth(r), postId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping

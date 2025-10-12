@@ -6,7 +6,6 @@ import com.socialapp.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -14,9 +13,13 @@ import java.util.List;
 public class PostController {
     private final PostService posts;
 
-    public PostController(PostService posts) { this.posts = posts; }
+    public PostController(PostService posts) {
+        this.posts = posts;
+    }
 
-    private User auth(HttpServletRequest req) { return (User) req.getAttribute("authUser"); }
+    private User auth(HttpServletRequest req) {
+        return (User) req.getAttribute("authUser");
+    }
 
     @PostMapping
     public PostResponse create(@RequestBody PostCreateReq req, HttpServletRequest r) {
@@ -24,10 +27,14 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public PostResponse get(@PathVariable Long id) { return posts.get(id); }
+    public PostResponse get(@PathVariable Long id) {
+        return posts.get(id);
+    }
 
     @GetMapping
-    public List<PostResponse> list() { return posts.list(); }
+    public List<PostResponse> list() {
+        return posts.list();
+    }
 
     @PutMapping("/{id}")
     public PostResponse update(@PathVariable Long id, @RequestBody PostUpdateReq req, HttpServletRequest r) {

@@ -22,18 +22,22 @@ public class LikeService {
 
     @Transactional
     public void like(User user, Long postId) {
-        Post p = posts.findById(postId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
-        if (likes.existsByPostIdAndUserId(postId, user.getId())) return; // idempotent
-        likes.save(PostLike.builder().post(p).user(user).build());
-        p.setLikes(likes.countByPostId(postId));
+        Post p = posts.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
+
+        if (!likes.existsByPostIdAndUserId(postId, user.getId())) {
+            likes.save(PostLike.builder().post(p).user(user).build());
+            p.setLikesCount(likes.countByPostId(postId));
+        }
     }
+
 
     @Transactional
     public void unlike(User user, Long postId) {
-        Post p = posts.findById(postId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+        Post p = posts.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post mevcut değil."));
+
         likes.deleteByPostIdAndUserId(postId, user.getId()); // idempotent
-        p.setLikes(likes.countByPostId(postId));
+        p.setLikesCount(likes.countByPostId(postId));
     }
 }

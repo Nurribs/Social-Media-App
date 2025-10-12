@@ -10,24 +10,24 @@ import org.springframework.web.bind.annotation.*;
 public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> badRequest(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(error("bad_request", ex.getMessage()));
+        return ResponseEntity.badRequest().body(error("Bad Request", ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<?> unauthorized(IllegalStateException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("unauthorized", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error("Unauthorized", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> validation(MethodArgumentNotValidException ex) {
         var first = ex.getBindingResult().getFieldErrors().stream().findFirst();
-        String msg = first.map(f -> f.getField() + " " + f.getDefaultMessage()).orElse("validation_error");
-        return ResponseEntity.badRequest().body(error("validation_error", msg));
+        String msg = first.map(f -> f.getField() + " " + f.getDefaultMessage()).orElse("Validation error");
+        return ResponseEntity.badRequest().body(error("Validation error", msg));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> server(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("server_error", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("Server Error", ex.getMessage()));
     }
 
     private Map<String, Object> error(String code, String message) {

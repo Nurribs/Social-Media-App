@@ -36,7 +36,7 @@ public class UserController {
 
     private User auth(HttpServletRequest req) {
         Object u = req.getAttribute("authUser");   // TokenAuth burada bırakıyor
-        if (u == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "missing_token");
+        if (u == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token mevcut değil.");
         return (User) u;
     }
 
@@ -44,7 +44,7 @@ public class UserController {
     public UserResponse getUser(@PathVariable Long id, HttpServletRequest req) {
         auth(req);
         User u = users.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user_not_found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Kullanıcı bulunamadı."));
         return UserResponse.from(u);
     }
 
@@ -61,7 +61,7 @@ public class UserController {
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteMe(
             HttpServletRequest req,
-            @RequestBody(required = false) String _ignoreBody // Gövde gelse bile yok say yoksa 500 ınternal hatası veriyor postman
+            @RequestBody(required = false) String _ignoreBody // Gövde gelse bile yok saydım yoksa 500 ınternal hatası veriyor postman
     ) {
         User me = auth(req);
         userService.deleteSelf(me);

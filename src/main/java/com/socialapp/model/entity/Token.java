@@ -38,12 +38,12 @@ public class Token {
 
     @PrePersist
     public void prePersist() {
-        // eğer service set etmediyse garanti altına al
+        // eğer service set etmediyse garanti altına alınacak
         if (createdAt == null) createdAt = Instant.now();
-        if (expiresAt == null) expiresAt = Instant.now().plus(Duration.ofHours(12)); // süreyi istersen properties’ten oku
+        if (expiresAt == null) expiresAt = Instant.now().plus(Duration.ofHours(12));
     }
 
     public boolean isActive(Instant now) {
-        return revokedAt == null && now.isBefore(expiresAt);
+        return revokedAt != null || !now.isBefore(expiresAt);
     }
 }

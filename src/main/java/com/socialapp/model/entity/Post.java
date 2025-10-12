@@ -27,29 +27,28 @@ public class Post {
     private String imageUrl;
 
     @Column(nullable = false, length = 1000)
-    private String caption;  //comment yerine
+    private String caption;  //post açıklaması olacak
 
     @Builder.Default
     @Column(nullable = false)
-    private long views = 0;
+    private long views = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private long likes = 0;
+    private long likesCount = 0L;
 
     @Builder.Default
+    @Column(nullable = false)
     @CreationTimestamp
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @Builder.Default
     @UpdateTimestamp
-    private Instant updatedAt;
+    private Instant updatedAt = Instant.now();
 
-    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 

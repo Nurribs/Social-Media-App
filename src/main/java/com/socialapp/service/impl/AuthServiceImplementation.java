@@ -40,7 +40,7 @@ public class AuthServiceImplementation implements AuthService{
     @Transactional
     public User signup(SignupReq req) {
         if(users.existsByUsername(req.username())){
-            throw new IllegalArgumentException("Kullanıcı adı mevcut.");
+            throw new IllegalArgumentException("Bu kullanıcı adında birisi mevcut.");
         }
         User u = User.builder()
                 .username(req.username())
@@ -71,7 +71,7 @@ public class AuthServiceImplementation implements AuthService{
     @Transactional
     public User me(String token) {
         Token t = tokens.findByToken(token).orElseThrow(() -> new IllegalArgumentException("Token bulunmamadı."));
-        if (!t.isActive(Instant.now())) {
+        if (t.isActive(Instant.now())) {
             throw new IllegalArgumentException("Token aktif değil veya süresi doldu.");
         }
         return t.getUser();

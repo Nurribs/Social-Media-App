@@ -29,7 +29,7 @@ public class CommentService {
     @Transactional
     public CommentResponse add(User author, Long postId, CommentCreateReq req) {
         Post p = posts.findById(postId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post ya da buna ait yorum mevcut değil."));
         Comment c = Comment.builder().post(p).author(author).text(req.text()).build();
         comments.save(c);
         return new CommentResponse(c.getId(), author.getId(), author.getUsername(), c.getText(), c.getCreatedAt());
@@ -38,7 +38,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> list(Long postId) {
         posts.findById(postId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "post_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post ya da buna ait yorum mevcut değil."));
         return comments.findByPostIdOrderByCreatedAtAsc(postId).stream().map(c ->
                 new CommentResponse(c.getId(), c.getAuthor().getId(), c.getAuthor().getUsername(), c.getText(), c.getCreatedAt())
         ).toList();
@@ -47,11 +47,11 @@ public class CommentService {
     @Transactional
     public void delete(User actor, Long commentId) {
         Comment c = comments.findById(commentId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "comment_not_found"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Post ya da buna ait yorum mevcut değil"));
         boolean ownerOfComment = c.getAuthor().getId().equals(actor.getId());
         boolean ownerOfPost    = c.getPost().getAuthor().getId().equals(actor.getId());
         if (!(ownerOfComment || ownerOfPost || roles.isAdmin(actor))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "forbidden");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Başka bir kullanıcnın post yorumunu silme yetkiniz yoktur.");
         }
         comments.delete(c);
     }

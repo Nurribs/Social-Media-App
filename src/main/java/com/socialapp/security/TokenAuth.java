@@ -20,12 +20,12 @@ public class TokenAuth implements HandlerInterceptor{
         throws Exception {
         String tokenValue = req.getHeader("Access-Token");
         if (tokenValue == null || tokenValue.isBlank()) {
-            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "missing_token");
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token oluşturulamadı veya mevcut değil.");
             return false;
         }
         Token t = tokens.findByToken(tokenValue).orElse(null);
-        if (t == null || !t.isActive(Instant.now())) {
-            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "invalid or expired token");
+        if (t == null || t.isActive(Instant.now())) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token geçersiz veya süresi dolmuş");
             return false;
         }
         req.setAttribute("authUser", t.getUser());
