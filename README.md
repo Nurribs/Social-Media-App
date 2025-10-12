@@ -6,22 +6,23 @@ Spring Security kullanılmadan, Bcrypt ve hasher kullanılarak güvenlik sağlan
 ---
 
 ## İçindekiler
-- Özellikler
-- Teknolojiler
-- Kurulum/Çalıştırma Adımları
-- Gerekli yapılandırma örnekleri
-- Hazır ADMIN kullanıcının bilgisi ve/veya oluşturulma şekli
-- Uç noktaların açıklamaları ve örnek akış (metinsel)
-- Varsayımlar & kısıtlar
+- [Özellikler](#özellikler)
+- [Teknolojiler](#teknolojiler)
+- [Kurulum/Çalıştırma-Adımları](#kurulumçalıştırma-adımları)
+- [Gerekli-Yapılandırma-Örnekleri](#gerekli-yapılandırma-örnekleri)
+- [Hazır-ADMIN-Kullanıcısı](#hazır-admin-kullanıcısı)
+- [Uç-Noktaların-Açıklamaları--Örnek-Akışlar](#uç-noktaların-açıklamaları--örnek-akışlar)
+- [Varsayımlar--Kısıtlar](#varsayımlar--kısıtlar)
 
 ---
 
 ## Özellikler
-- **Custom Token Auth**: *Login* → token üretimi, DB’de aktif saklama; *logout* → token sonlandırma.
+
+- **Custom Token Auth**: Login → token üretimi, DB’de aktif saklama; logout → token sonlandırma.
 - **TTL**: Token’ların geçerlilik süresi vardır (örn. `3600s`).
 - **Roller**: `ADMIN` ve `USER`. Admin kullanıcı başlangıçta otomatik oluşturulur.
 - **Kullanıcı İşlemleri**: Profil görüntüleme, şifre değiştirme, kendini silme, post/comment oluşturma/güncelleme; admin başka kullanıcıyı silebilir.
-- **İçerik**: Post (imageUrl + caption(post açıklaması)), Comment, Like.
+- **İçerik**: Post (imageUrl + caption), Comment, Like.
 - **Yetkiler**: Post/Comment üzerinde sahiplik kontrolü; admin her şeyi güncelleyip/silebilir.
 - **Sayaçlar**: Post görüntülenme ve beğeni sayısı tutulur.
 - **Tutarlı Hata Formatı**: `docs/errors.md`’de belgeli.
@@ -29,111 +30,162 @@ Spring Security kullanılmadan, Bcrypt ve hasher kullanılarak güvenlik sağlan
 ---
 
 ## Teknolojiler
-- **Java 17+**, **Spring Boot 3+**
-- **PostgreSQL**
-- **JPA/Hibernate**
-- **Maven**
-- **Docker & Docker Compose**
-- **Postman** (koleksiyon + environment)
+
+- Java 17+
+- Spring Boot 3+
+- PostgreSQL
+- JPA / Hibernate
+- Maven
+- Docker & Docker Compose
+- Postman (koleksiyon + environment)
 
 ---
 
 ## Kurulum/Çalıştırma Adımları
 
-> Docker Desktop çalışır durumda olmalı.
+> Docker Desktop çalışır durumda olmalı.  
 > Proje dizininde gerekli docker dosyaları zaten mevcuttur.
-> Projenin ana(kök) dizininden aşağıdaki komutları takip ederek kurulum ve çalıştırmayı yapabilirsiniz.
 
-Terminalden --> docker compose up -d --build
-Uygulama: http://localhost:8080
-DB: localhost:5432 (socialdb / social / socialpwd)
-pgAdmin: http://localhost:5050 (admin@example.com / admin123)
+```bash
+docker compose up -d --build
+```
+- Uygulama: http://localhost:8080  
+- DB: localhost:5432 (socialdb / social / socialpwd)  
+- pgAdmin: http://localhost:5050 (admin@example.com / admin123)
 
-#program durdurulmak istenirse 
-Terminalden --> docker compose down
-#eğer tüm cache' i ve veri tabanındaki verileri tamamen silmek isterseniz --> docker compose down -v
+Durdurmak için:
+```bash
+docker compose down
+```
+
+Tüm verileri temizlemek için:
+```bash
+docker compose down -v
+```
 
 ---
 
-## **Gerekli Yapılandırma Örnekleri**
+## Gerekli Yapılandırma Örnekleri
 
->application.properties  (dosya içeriği)
-
----
+### application.properties
+```properties
 spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/socialdb}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME:social}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:socialpwd}
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.hibernate.ddl-auto=update
 app.token.ttl-seconds=3600
----
+```
 
 ---
 
-## **Hazır ADMIN kullanıcının bilgisi ve/veya oluşturulma şekli**
+## Hazır ADMIN Kullanıcısı
 
-Uygulama ayağa kalktığında bootstrap/AdminSeeder.java şu kullanıcıyı yoksa oluşturur:
+Uygulama ayağa kalktığında `bootstrap/AdminSeeder.java` şu kullanıcıyı yoksa oluşturur:
 
-username: admin
-password: admin123
-role: ADMIN
+- username: admin  
+- password: admin123  
+- role: ADMIN  
 
 ---
 
-## **Uç noktaların açıklamaları ve örnek akış (metinsel)**
+## Uç Noktaların Açıklamaları & Örnek Akışlar
 
-(Body' ler postman' de raw ve formatı JSON olarak seçilmelidir.)
+Body’ler Postman'de `raw` + `JSON` olmalıdır.  
+**Authorization:**
+- Key: Access-Token  
+- Value: `{{accessToken}}`  
+- Add To: Header
 
-Authorization: API key  
-               Key: Access-Token
-               Value: {{accessToken}}
-               Add To: Header
+### AUTH
+- `POST /api/auth/signup` – Yeni kullanıcı oluşturur (rol: USER)  
+- `POST /api/auth/login` – Giriş + token üretir  
+- `POST /api/auth/logout` – Token sonlandırır  
+- `GET /api/auth/me` – Oturum sahibi kullanıcıyı döner  
 
-**AUTH**
--POST /api/auth/signup – Yeni kullanıcı oluşturur (rol: USER). Body: {username,password}
+### USERS
+- `GET /api/users/{id}` – Profil görüntüleme  
+- `PUT /api/users/me/password` – Şifre değiştirme  
+- `DELETE /api/users/me` – Kendi hesabını silme  
+- `DELETE /api/admin/users/{id}` – Admin kullanıcı silme  
 
--POST /api/auth/login – Giriş + süreli erişim token üretir. Body: {username,password}
+### POSTS
+- `POST /api/posts` – Post oluşturma  
+- `GET /api/posts/{id}` – Detaylı post bilgisi  
+- `PUT /api/posts/{id}` – Güncelleme (sahip veya admin)  
+- `DELETE /api/posts/{id}` – Silme (sahip veya admin)  
+- `POST /api/posts/{id}/view` – Görüntülenme +1  
+- `GET /api/posts` – Tüm postlar  
 
--POST /api/auth/logout – Geçerli token’ı sonlandırır. Header: Access-Token
+### COMMENTS
+- `POST /api/posts/{id}/comments` – Yorum ekleme  
+- `GET /api/posts/{id}/comments` – Yorumları listeleme  
+- `DELETE /api/comments/{id}` – Yorumu silme (sahip/post sahibi/admin)  
 
--GET /api/auth/me – Aktif kullanıcının bilgisi. Header: Access-Token
+### LIKES
+- `POST /api/posts/{id}/likes` – Beğenme  
+- `DELETE /api/posts/{id}/likes` – Beğeni kaldırma  
 
-**USERS**
--GET /api/users/{id} – Tekil kullanıcı profili. Header: Access-Token
+### Örnek Akışlar
 
--PUT /api/users/me/password – Kendi şifresini günceller. Header: Access-Token Body: {currentPassword,newPassword}
+#### 1. Temel Akış
+```text
+Signup → Login → Post Oluştur → View → Like → Comment → Logout
+```
 
--DELETE /api/users/me – Kendi hesabını siler. Header: Access-Token
+#### 2. Sahiplik / Yetki Kontrolü
+- Kullanıcı A → B’nin postunu silemez  
+- Admin veya post sahibi → silebilir  
 
--DELETE /api/admin/users/{id} – ADMIN herhangi bir kullanıcıyı siler. Header: Access-Token (ADMIN)
+#### 3. Admin Moderasyon
+- Admin giriş yapar  
+- İçerik siler veya kullanıcıyı kaldırır → tüm ilişkili veriler de silinir  
 
-**POSTS**
--POST /api/posts – Post oluşturur (resim + açıklama). Header: X-Access-Token Body: {imageUrl,caption}
+#### 4. Token Süresi Dolarsa
+- `401 Unauthorized` hatası alınır  
+- Tekrar login yapılır → yeni token kullanılır  
 
--GET /api/posts/{id} – Post detay (yazar, sayaçlar, yorumlar). Header: Access-Token
+---
 
--PUT /api/posts/{id} – Postu günceller (sahip veya ADMIN). Header: Access-Token Body: {imageUrl?,caption?}
+## Varsayımlar & Kısıtlar
 
--DELETE /api/posts/{id} – Postu siler (sahip veya ADMIN). Header: Access-Token
+### Varsayımlar
+- Roller sadece `ADMIN` ve `USER`  
+- Admin kullanıcı başlangıçta seed edilir  
+- Spring Security yok, custom token mevcut  
+- Token `Access-Token` header'ı ile gönderilir  
+- Token TTL: 3600s  
+- `username` alanı benzersizdir  
+- `POST /posts/{id}/view` → sayaç artışı (non-idempotent)  
+- Like işlemleri idempotent (tekrar beğeni hata vermez)  
+- Yorum silme yetkisi: yorum sahibi, post sahibi veya admin  
 
--POST /api/posts/{id}/view – Görüntülenme sayacını +1. Header: Access-Token
+### Kısıtlar / Kapsam Dışı
+- Gerçek dosya yükleme yok, sadece `imageUrl`  
+- Feed, takip, bildirim vb. gelişmiş özellikler yok  
+- Rate limiting / brute-force koruması yok  
+- Şifre kuralları örnek seviyede  
+- Sayfalama, filtreleme gelişmiş değil  
 
--GET /api/posts – Tüm postları listeler. Header: Access-Token
+### Veri & Kalıcılık
+- PostgreSQL & Docker Compose  
+- Cascade silmeler aktif (referans bütünlüğü korunur)  
+- `createdAt`, `updatedAt` alanları mevcuttur  
+- Sayaçlar servis sırasında güncellenir  
 
-**COMMENTS**
--POST /api/posts/{id}/comments – Post’a yorum ekler. Header: Access-Token Body: {text}
+### Güvenlik
+- UUID tabanlı token, DB’de tutulur  
+- Refresh token yok  
+- Çoklu oturumlara izin verilir  
 
--GET /api/posts/{id}/comments – Post’un yorumlarını listeler. Header: Access-Token
+### API Davranışı
+- Tüm hatalar tutarlı JSON döner (`GlobalExceptionHandler`)  
+- `POST /likes` ikinci kez çağrıldığında no-op  
+- `DELETE /likes` yoksa da 204 döner  
+- Request validation aktiftir (şifre değişikliği vs.)  
 
--DELETE /api/comments/{id} – Yorumu yorum sahibi, post sahibi veya ADMIN siler. Header: Access-Token
-
-**LIKES**
--POST /api/posts/{id}/likes – Postu beğenir (kullanıcı başına tek). Header: Access-Token
-
--DELETE /api/posts/{id}/likes – Beğeniyi geri alır. Header: Access-Token
-
-Not: Korumalı uç noktalar için her zaman Access-Token: <token> header’ını gönder.
-
-
-
+### Operasyonel
+- `docker compose up -d --build` → tam kurulum  
+- Yapılandırma `application.properties` içinde  
+- Postman collection + environment → `postman/` klasöründe  
 
