@@ -33,6 +33,7 @@ Spring Security kullanılmadan, Bcrypt ve hasher kullanılarak güvenlik sağlan
 
 - Java 17+
 - Spring Boot 3+
+- Intellij IDEA
 - PostgreSQL
 - JPA / Hibernate
 - Maven
